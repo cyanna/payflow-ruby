@@ -15,6 +15,11 @@ module Payflow
       @partner = merchant_account.partner
       @password = merchant_account.password
       @user = merchant_account.user || merchant_account.login
+      if options.keys.include?(:faraday_logger)
+        @faraday_logger = options[:faraday_logger] # in case they want to nil it
+      else
+        @faraday_logger = :logger
+      end
       @options = options.merge({
         login: login,
         password: password,
@@ -66,7 +71,7 @@ module Payflow
       def connection
         @conn ||= Faraday.new(:url => endpoint) do |faraday|
           faraday.request  :url_encoded
-          faraday.response :logger
+          faraday.response @faraday_logger unless @faraday_logger.nil?
           faraday.adapter  Faraday.default_adapter
         end
       end

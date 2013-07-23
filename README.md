@@ -35,7 +35,7 @@ Or install it yourself as:
 
   The Payflow gem also supports the Payflow Report API. This is a separate API but supports the same credentials.
   
-    report = Payflow::SettlementReport.new(OpenStruct(login: "me", password: "password", partner: "PayPal"))
+    report = Payflow::SettlementReport.new(OpenStruct.new(login: "me", password: "password", partner: "PayPal"))
     
     if report.create_report("YOUR PROCESSOR", "2013-01-01", "2013-01-02").successful?
       report.fetch
