@@ -24,7 +24,8 @@ module Payflow
     end
 
     def authorize(money, credit_card_or_reference, options = {})
-      request(:authorization, money, credit_card_or_reference, options).commit(options)
+      obj = request(:authorization, money, credit_card_or_reference, options)
+      obj.commit(options)
     end
 
     def sale(money, credit_card_or_reference, options = {})

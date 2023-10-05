@@ -3,12 +3,13 @@ require 'spec_helper'
 
 describe Payflow::Gateway do
   describe "Making a Sale" do
-    
+
   end
 
   describe "Making an authorization" do
     it "should create a request with :authorization" do
-      Payflow::Request.should_receive(:new).with(:authorization, 10, nil, {:login=>"login", :password=>"password", :partner=>"Partner"}).and_return(stub(commit: Payflow::MockResponse.new("")))
+      expected_return = double(commit: Payflow::MockResponse.new(""))
+      expect(Payflow::Request).to receive(:new).with(:authorization, 10, nil, {:login=>"login", :password=>"password", :partner=>"Partner"}).and_return(expected_return)
       gateway = Payflow::Gateway.new(OpenStruct.new(password: "password",  login: "login", partner: "Partner"))
       gateway.authorize(10, nil)
     end
