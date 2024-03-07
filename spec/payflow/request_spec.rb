@@ -18,7 +18,7 @@ describe Payflow::Request do
     end
 
     it "should add a comment if submitted" do
-      request = Payflow::Request.new(:capture, 100, "CREDITCARDREF", {pairs: {comment1: "COMMENT"}})
+      request = Payflow::Request.new(:capture, 100, "CREDITCARDREF", { pairs: { comment1: "COMMENT" } })
       request.pairs.comment1.should eql("COMMENT")
     end
 
@@ -49,63 +49,63 @@ describe Payflow::Request do
   end
 
   it "should handle credits" do
-    request = Payflow::Request.new(:credit, 10, "AUTHCODE", {test: true})
+    request = Payflow::Request.new(:credit, 10, "AUTHCODE", { test: true })
     request.pairs.amt.should eql(10)
   end
 
   it "should be in test? if asked" do
-    request = Payflow::Request.new(:sale, 100, "CREDITCARDREF", {test: true})
+    request = Payflow::Request.new(:sale, 100, "CREDITCARDREF", { test: true })
     request.test?.should be(true)
   end
 
   describe "commiting" do
     it "should call connection post" do
-      request = Payflow::Request.new(:sale, 100, "CREDITCARDREF", {test: true})
-      connection = stub
-      connection.should_receive(:post).and_return(OpenStruct.new(status: 200, body: ""))
-      request.stub(:connection).and_return(connection)
+      request = Payflow::Request.new(:sale, 100, "CREDITCARDREF", { test: true })
+      connection = double
+      expect(connection).to receive(:post).and_return(OpenStruct.new(status: 200, body: ""))
+      expect(request).to receive(:connection).and_return(connection)
       request.commit
     end
 
     it "should return a Payflow::Response" do
-      request = Payflow::Request.new(:sale, 100, "CREDITCARDREF", {test: true})
-      connection = stub
-      connection.should_receive(:post).and_return(OpenStruct.new(status: 200, body: ""))
-      request.stub(:connection).and_return(connection)
+      request = Payflow::Request.new(:sale, 100, "CREDITCARDREF", { test: true })
+      connection = double
+      expect(connection).to receive(:post).and_return(OpenStruct.new(status: 200, body: ""))
+      expect(request).to receive(:connection).and_return(connection)
       request.commit.should be_a(Payflow::Response)
     end
 
     it "should include required headers in the request" do
-      request = Payflow::Request.new(:sale, 100, "CREDITCARDREF", {test: true})
+      request = Payflow::Request.new(:sale, 100, "CREDITCARDREF", { test: true })
       faraday_request = double
-      faraday_request.should_receive(:body=)
+      expect(faraday_request).to receive(:body=)
       headers = double
-      headers.should_receive(:[]=).with("Content-Type", "text/name value")
-      headers.should_receive(:[]=).with("X-VPS-CLIENT-TIMEOUT", "60")
-      headers.should_receive(:[]=).with("X-VPS-VIT-Integration-Product", "Payflow Gem")
-      headers.should_receive(:[]=).with("X-VPS-VIT-Runtime-Version", RUBY_VERSION)
-      headers.should_receive(:[]=).with("Host", Payflow::Request::TEST_HOST)
-      headers.should_receive(:[]=).with("X-VPS-REQUEST-ID", "MYORDERID")
+      expect(headers).to receive(:[]=).with("Content-Type", "text/name value")
+      expect(headers).to receive(:[]=).with("X-VPS-CLIENT-TIMEOUT", "60")
+      expect(headers).to receive(:[]=).with("X-VPS-VIT-Integration-Product", "Payflow Gem")
+      expect(headers).to receive(:[]=).with("X-VPS-VIT-Runtime-Version", RUBY_VERSION)
+      expect(headers).to receive(:[]=).with("Host", Payflow::Request::TEST_HOST)
+      expect(headers).to receive(:[]=).with("X-VPS-REQUEST-ID", "MYORDERID")
 
-      faraday_request.stub(:headers).and_return(headers)
+      allow(faraday_request).to receive(:headers).and_return(headers)
 
-      connection = stub
-      connection.stub(:post).and_yield(faraday_request).and_return(OpenStruct.new(status: 200, body: ""))
+      connection = double
+      expect(connection).to receive(:post).and_yield(faraday_request).and_return(OpenStruct.new(status: 200, body: ""))
+      expect(request).to receive(:connection).and_return(connection)
 
-      request.stub(:connection).and_return(connection)
       request.commit(order_id: "MYORDERID")
     end
 
     it "should not call connection post if asked to mock" do
-      request = Payflow::Request.new(:sale, 100, "CREDITCARDREF", {test: true, mock: true})
-      connection = stub
-      connection.should_not_receive(:post)
-      request.stub(:connection).and_return(connection)
+      request = Payflow::Request.new(:sale, 100, "CREDITCARDREF", { test: true, mock: true })
+      connection = double
+      expect(connection).not_to receive(:post)
+      allow(request).to receive(:connection).and_return(connection)
       request.commit
     end
 
     it "should return a Payflow::MockResponse if mocked" do
-      request = Payflow::Request.new(:sale, 100, "CREDITCARDREF", {test: true, mock: true})
+      request = Payflow::Request.new(:sale, 100, "CREDITCARDREF", { test: true, mock: true })
       request.commit.should be_a(Payflow::MockResponse)
     end
   end
